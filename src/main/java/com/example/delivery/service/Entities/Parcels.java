@@ -1,19 +1,16 @@
 package com.example.delivery.service.Entities;
 
 import com.example.delivery.service.Enum.Status;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "parcels")
 @Entity
 public class Parcels {
@@ -22,6 +19,7 @@ public class Parcels {
     private UUID id;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "parcel_status")
     private Status status;
 
     @ManyToOne
@@ -32,11 +30,25 @@ public class Parcels {
     @JoinColumn(name = "courier_id")
     private Couriers courierId;
 
-    @NotBlank
-    private LocalDate date;
+    @Column(name = "creation_date")
+    private Date date;
+
     private UUID pickupAddressId;
     private UUID deliveryAddressId;
 
     private Double weight;
 
+    @Override
+    public String toString() {
+        return "Parcels{" +
+                "id=" + id +
+                ", status=" + status +
+                ", user=" + user +
+                ", courierId=" + courierId +
+                ", date=" + date +
+                ", pickupAddressId=" + pickupAddressId +
+                ", deliveryAddressId=" + deliveryAddressId +
+                ", weight=" + weight +
+                '}';
+    }
 }

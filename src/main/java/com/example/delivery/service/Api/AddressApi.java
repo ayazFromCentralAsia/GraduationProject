@@ -23,7 +23,7 @@ public class AddressApi {
 
     private final AddressService addressService;
 
-    @PreAuthorize("hasAnyAuthority('USER')")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     @PostMapping
     @Operation(summary = "Create Address")
     public AddressResponse createAddress(@RequestBody AddressRequest address) {
