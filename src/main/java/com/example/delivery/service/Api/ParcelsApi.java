@@ -50,10 +50,10 @@ public class ParcelsApi {
             return ResponseEntity.ok(Map.of("message", "Parcel status updated successfully"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("error", e.getMessage()));
+                    .body(Map.of("message", e.getMessage()));
         } catch (FailedCreateException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to update parcel status: " + e.getMessage()));
+                    .body(Map.of("message", "Failed to update parcel status: "));
         }
     }
 
@@ -66,7 +66,7 @@ public class ParcelsApi {
             return ResponseEntity.ok(Map.of("message", "Parcel status updated successfully"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("error", e.getMessage()));
+                    .body(Map.of("message", e.getMessage()));
         }
     }
 }

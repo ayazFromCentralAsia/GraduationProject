@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    image: graduation-project
+    container_name: back_testing
+    restart: always
+    ports:
+      - "2222:8080"
+    depends_on:
+      - DB_testing
+    environment:
+      SERVER_PORT: 8080
+      SPRING_DATASOURCE_URL: jdbc:postgresql://DB_testing:5432/delivery_service
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 123321
+    networks:
+      - app_network
+
+  DB_testing:
+    image: postgres
+    restart: always
+    container_name: postgres_testing
+    ports:
+      - "4334:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123321
+      POSTGRES_DB: delivery_service
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+volumes:
+  db_data:
+
+networks:
+  app_network:
+    driver: bridge

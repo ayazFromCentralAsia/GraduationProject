@@ -36,7 +36,12 @@ public class ProfileApi {
     @PutMapping("/me")
     @Operation(summary = "Change user Information")
     public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileRequest updateProfileRequest, Principal principal) {
-        profileService.updateUserProfile(principal.getName(), updateProfileRequest);
-        return ResponseEntity.ok(Map.of("message", "Profile updated successfully"));
+        try{
+            profileService.updateUserProfile(principal.getName(), updateProfileRequest);
+            return ResponseEntity.ok(Map.of("message", "Profile updated successfully"));
+        }catch (Exception e){
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 }
