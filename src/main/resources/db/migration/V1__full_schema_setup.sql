@@ -1,4 +1,4 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -7,14 +7,14 @@ CREATE TABLE users (
     role VARCHAR(20)
 );
 
-CREATE TABLE couriers (
+CREATE TABLE IF NOT EXISTS couriers (
     id UUID PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     phone VARCHAR(20)
 );
 
-CREATE TABLE addresses (
+CREATE TABLE IF NOT EXISTS addresses (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL,
     city VARCHAR(100) NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE addresses (
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
-CREATE TABLE parcels (
+CREATE TABLE IF NOT EXISTS parcels (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL,
     courier_id UUID,
