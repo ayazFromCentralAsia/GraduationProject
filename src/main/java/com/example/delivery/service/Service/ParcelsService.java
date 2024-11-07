@@ -1,27 +1,27 @@
 package com.example.delivery.service.Service;
 
-import com.example.delivery.service.Dto.Parcels.CreateParcelsRequest;
-import com.example.delivery.service.Dto.Parcels.CreateParcelsResponse;
-import com.example.delivery.service.Dto.Parcels.ParcelsResponse;
-import com.example.delivery.service.Dto.Parcels.ParcelsStatusRequest;
+import com.example.delivery.service.Dto.Parcels.*;
+import com.example.delivery.service.Entities.Couriers;
 import com.example.delivery.service.Entities.Parcels;
 import com.example.delivery.service.Enum.Status;
 import com.example.delivery.service.Exceptions.FailedCreateException;
 import com.example.delivery.service.Exceptions.FailedGiveParcels;
 import com.example.delivery.service.Exceptions.NotFoundException;
+import com.example.delivery.service.Repository.CouriersRepository;
 import com.example.delivery.service.Repository.ParcelsRepository;
 import com.example.delivery.service.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static com.example.delivery.service.Enum.Status.PENDING;
@@ -31,6 +31,7 @@ import static com.example.delivery.service.Enum.Status.PENDING;
 public class ParcelsService {
     private final ParcelsRepository parcelsRepository;
     private final UserRepository userRepository;
+    private final CouriersRepository couriersRepository;
 
     ModelMapper modelMapper = new ModelMapper();
 
@@ -51,8 +52,6 @@ public class ParcelsService {
                         findByUsername(authentication.getName()).orElseThrow(() -> new NotFoundException("User not found ProfileService"))
                         ,null,timestamp,uuidFrom,uuidTo,request.getWeight());
                 modelMapper.map(parcels, createParcelsResponse);
-
-                System.out.println(parcels);
                 parcelsRepository.save(parcels);
                 logger.info("Parcel created with response: {}", createParcelsResponse);
                 return createParcelsResponse;
@@ -107,6 +106,51 @@ public class ParcelsService {
             logger.info("Parcel status updated successfully");
         } catch (FailedCreateException e) {
             throw new FailedCreateException("Error in updating parcel status: " + e.getMessage());
+        }
+    }
+
+    public void pickParcel(UUID id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        logger.info("Picking parcel with id: {}, courier: {}", id, authentication.getName());
+        Parcels parcels = parcelsRepository.findById(id).orElseThrow(() -> new NotFoundException("Parcel not found"));
+        try {
+            if (parcels.getStatus() == Status.PENDING) {
+                parcels.setStatus(Status.IN_TRANSIT);
+                parcels.setCourierId(couriersRepository.findByUsername(authentication.getName()).orElseThrow(() -> new NotFoundException("Courier not found ParcelsService")));
+                parcelsRepository.save(parcels);
+            } else {
+                throw new IllegalArgumentException("Parcel is not in pending status");
+            }
+        } catch (IllegalArgumentException e) {
+            logger.error("Error in picking parcel: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    public List<ParcelsCourierResponse> getAllParcels() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Couriers couriers = couriersRepository.findByUsername(authentication.getName()).orElseGet(() -> null);
+            logger.info("Getting all parcels");
+            List<Parcels> parcelsList = parcelsRepository.findAll();
+            List<ParcelsCourierResponse> parcelsCourierResponseList = new ArrayList<>();
+            for (Parcels parcels : parcelsList) {
+                if (couriers != null) {
+                    if (parcels.getStatus() == PENDING) {
+                        ParcelsCourierResponse parcelsCourierResponse = new ParcelsCourierResponse();
+                        modelMapper.map(parcels, parcelsCourierResponse);
+                        parcelsCourierResponseList.add(parcelsCourierResponse);
+                    }
+                }else {
+                    ParcelsCourierResponse parcelsCourierResponse = new ParcelsCourierResponse();
+                    modelMapper.map(parcels, parcelsCourierResponse);
+                    parcelsCourierResponseList.add(parcelsCourierResponse);
+                }
+            }
+            logger.info("Parcels found with response: {}", parcelsCourierResponseList);
+            return parcelsCourierResponseList;
+        } catch (FailedGiveParcels e) {
+            throw new FailedGiveParcels("Error in getting all parcels: " + e.getMessage());
         }
     }
 }

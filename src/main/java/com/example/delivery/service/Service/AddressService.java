@@ -6,6 +6,7 @@ import com.example.delivery.service.Dto.Address.AddressResponse;
 import com.example.delivery.service.Entities.Address;
 import com.example.delivery.service.Entities.User;
 import com.example.delivery.service.Exceptions.FailedCreateException;
+import com.example.delivery.service.Exceptions.FailedDeleteException;
 import com.example.delivery.service.Exceptions.NotFoundException;
 import com.example.delivery.service.Repository.AddressRepository;
 import com.example.delivery.service.Repository.UserRepository;
@@ -70,17 +71,22 @@ public class AddressService {
         return addressResponseList;
     }
     public void deleteAddress(UUID id) {
-        logger.info("Deleting address for user");
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User userEntity = userRepository.findByUsername(authentication.getName()).orElseThrow(() ->
-                new NotFoundException("User not found, AddressService, deleteAddress()"));
-        Address address = addressRepository.findById(id).orElseThrow(() ->
-                new NotFoundException("Address not found, AddressService, deleteAddress()"));
-        if (userEntity.getId().equals(address.getUser().getId())){
-            addressRepository.deleteById(id);
-            logger.info("Address deleted for user");
-        }else {
-            logger.error("User not authorized to delete address");
+        try {
+            logger.info("Deleting address for user");
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User userEntity = userRepository.findByUsername(authentication.getName()).orElseThrow(() ->
+                    new NotFoundException("User not found, AddressService, deleteAddress()"));
+            Address address = addressRepository.findById(id).orElseThrow(() ->
+                    new NotFoundException("Address not found, AddressService, deleteAddress()"));
+            if (userEntity.getId().equals(address.getUser().getId())) {
+                addressRepository.deleteById(id);
+                logger.info("Address deleted for user");
+            } else {
+                logger.error("User not authorized to delete address");
+            }
+        }catch (FailedDeleteException e){
+            logger.error("Error deleting address for user: " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 }

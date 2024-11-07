@@ -1,6 +1,7 @@
 package com.example.delivery.service.Entities;
 
 
+import com.example.delivery.service.Enum.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -26,4 +27,7 @@ public class Couriers {
     @Email
     private String email;
     private String phone;
+
+    private Role Courier;
+
 }

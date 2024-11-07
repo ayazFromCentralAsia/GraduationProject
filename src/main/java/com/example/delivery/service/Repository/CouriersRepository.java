@@ -10,4 +10,8 @@ import java.util.UUID;
 @Repository
 public interface CouriersRepository extends JpaRepository<Couriers, UUID> {
     Optional<Couriers> findByUsername(String username);
+
+    Boolean existsByEmail(String username);
+    Boolean existsByPhone(String phone);
+    Boolean existsByUsername(String username);
 }

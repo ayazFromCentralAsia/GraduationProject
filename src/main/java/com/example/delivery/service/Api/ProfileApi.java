@@ -23,7 +23,7 @@ public class ProfileApi {
 
     private final ProfileService profileService;
 
-    @PreAuthorize("hasAnyAuthority('USER','ADMIN','COURIER')")
+    @PreAuthorize("hasAnyAuthority('USER','COURIER')")
     @GetMapping("/me")
     @Operation(summary = "Get user Information")
     public ProfileInfoResponse aboutMe(){
@@ -32,7 +32,7 @@ public class ProfileApi {
         return profileService.getUserInformation(username);
     }
 
-    @PreAuthorize("hasAnyAuthority('USER','ADMIN','COURIER')")
+    @PreAuthorize("hasAnyAuthority('USER','COURIER')")
     @PutMapping("/me")
     @Operation(summary = "Change user Information")
     public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileRequest updateProfileRequest, Principal principal) {

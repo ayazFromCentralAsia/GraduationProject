@@ -58,6 +58,19 @@ public class AdminApi {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
+    @DeleteMapping("/couriers/{id}")
+    @Operation(summary = "Delete Courier, Only Couriers ID Not User")
+    public ResponseEntity<?> deleteCouriers(@PathVariable UUID id) {
+        try {
+            adminService.deleteCourier(id);
+            return ResponseEntity.ok(Map.of("message", "Courier blocked successfully"));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/couriers/{id}")
     @Operation(summary = "Change Courier Info")
     public ResponseEntity<?> changeCourierInfo(@PathVariable UUID id, @RequestBody CouriersDto couriersDto) {

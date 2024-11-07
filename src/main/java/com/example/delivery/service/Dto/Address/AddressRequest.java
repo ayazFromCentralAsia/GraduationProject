@@ -14,7 +14,7 @@ public class AddressRequest {
     String street;
     @NotBlank(message = "{field.required}")
     String houseNumber;
-    @NotBlank(message = "{field.required}")
+
     String apartment;
     @NotBlank(message = "{field.required}")
     String postalCode;

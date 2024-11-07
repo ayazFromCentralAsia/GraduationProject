@@ -64,9 +64,16 @@ public class ProfileService {
     }
 
     public void updateUserProfile(String username, UpdateProfileRequest updateProfileRequest) {
+        User checkUser = userRepository.findByUsername(username).orElseThrow(() -> new NotFoundException("User not found, profileService"));
         if (updateProfileRequest.getEmail().isEmpty() && updateProfileRequest.getPhone().isEmpty()){
             logger.info("Requested update is empty for user: " + username);
             throw new IllegalArgumentException("Requested update is empty");
+        }
+        if (userRepository.existsByEmail(updateProfileRequest.getEmail()) && !updateProfileRequest.getEmail().equals(checkUser.getEmail())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+        if (userRepository.existsByNumber(updateProfileRequest.getPhone()) && !updateProfileRequest.getPhone().equals(checkUser.getNumber())) {
+            throw new IllegalArgumentException("Phone number already exists");
         }
         logger.info("Updating user profile for user: " + username);
         User user = userRepository.findByUsername(username)
